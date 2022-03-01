@@ -2,8 +2,11 @@ extends KinematicBody
 
 var speed = 10
 var h_acceleration = 12
+var air_acceleration = 1
+var normal_acceleration = 12
 var gravity = 20
 var jump = 10
+var full_contact = false
 
 var mouse_sensitivity= 0.25
 
@@ -13,6 +16,7 @@ var movement = Vector3()
 var gravity_vec = Vector3()
 
 onready var head = $head
+onready var ground_check = $GroundCheck
 
 func _ready():
 	# Lock mouse onto gamescreen
@@ -28,14 +32,25 @@ func _physics_process(delta):
 	
 	direction = Vector3()
 	
+	# Raycast to ground
+	if ground_check.is_colliding():
+		full_contact = true
+	else:
+		full_contact = false
+	
 	# Do gravity
 	if not is_on_floor():
 		gravity_vec += Vector3.DOWN * gravity * delta
-	else:
+		h_acceleration = air_acceleration
+	elif is_on_floor() and full_contact:
 		gravity_vec = -get_floor_normal() * gravity
+		h_acceleration = normal_acceleration
+	else: 
+		gravity_vec = -get_floor_normal()
+		h_acceleration = normal_acceleration
 	
 	# Check if jumping
-	if Input.is_action_just_pressed("jump") and is_on_floor():
+	if Input.is_action_just_pressed("jump") and (is_on_floor() or ground_check.is_colliding()):
 		gravity_vec = Vector3.UP * jump
 	
 	# Change speed if shift and forward are pressed
