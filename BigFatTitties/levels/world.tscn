@@ -1,90 +1,81 @@
-[gd_scene load_steps=13 format=2]
+[gd_scene load_steps=17 format=2]
 
-[ext_resource path="res://assets/Max.tscn" type="PackedScene" id=1]
-[ext_resource path="res://assets/crate.tscn" type="PackedScene" id=2]
-[ext_resource path="res://textures/cracked-brown-ground-texture-770x515.jpg" type="Texture" id=3]
+[ext_resource path="res://player/FPS.tscn" type="PackedScene" id=1]
+[ext_resource path="res://terrain/data.hterrain" type="Resource" id=2]
+[ext_resource path="res://addons/zylann.hterrain/hterrain.gd" type="Script" id=3]
+[ext_resource path="res://addons/zylann.hterrain/hterrain_texture_set.gd" type="Script" id=4]
+[ext_resource path="res://addons/zylann.hterrain/hterrain_detail_layer.gd" type="Script" id=5]
+[ext_resource path="res://levels/world_slot1_normal_roughness.packed_tex" type="Texture" id=6]
+[ext_resource path="res://levels/world_slot1_albedo_bump.packed_tex" type="Texture" id=7]
+[ext_resource path="res://levels/world_slot0_normal_roughness.packed_tex" type="Texture" id=8]
+[ext_resource path="res://levels/world_slot0_albedo_bump.packed_tex" type="Texture" id=9]
+[ext_resource path="res://levels/world_slot2_normal_roughness.packed_tex" type="Texture" id=10]
+[ext_resource path="res://terrain/grass.png" type="Texture" id=11]
+[ext_resource path="res://levels/world_slot2_albedo_bump.packed_tex" type="Texture" id=12]
+[ext_resource path="res://addons/zylann.hterrain/tools/icons/icon_detail_layer_node.svg" type="Texture" id=13]
 
-[sub_resource type="CubeMesh" id=1]
+[sub_resource type="Resource" id=12]
+script = ExtResource( 4 )
+mode = 0
+textures = [ [ ExtResource( 9 ), ExtResource( 7 ), ExtResource( 12 ) ], [ ExtResource( 8 ), ExtResource( 6 ), ExtResource( 10 ) ] ]
 
-[sub_resource type="SpatialMaterial" id=7]
-albedo_texture = ExtResource( 3 )
-uv1_scale = Vector3( 100, 100, 0 )
-uv1_triplanar_sharpness = 1.18921
-uv2_scale = Vector3( 10, 10, 1 )
+[sub_resource type="ProceduralSky" id=13]
 
-[sub_resource type="ConcavePolygonShape" id=2]
-data = PoolVector3Array( -1, 1, 1, 1, 1, 1, -1, -1, 1, 1, 1, 1, 1, -1, 1, -1, -1, 1, 1, 1, -1, -1, 1, -1, 1, -1, -1, -1, 1, -1, -1, -1, -1, 1, -1, -1, 1, 1, 1, 1, 1, -1, 1, -1, 1, 1, 1, -1, 1, -1, -1, 1, -1, 1, -1, 1, -1, -1, 1, 1, -1, -1, -1, -1, 1, 1, -1, -1, 1, -1, -1, -1, 1, 1, 1, -1, 1, 1, 1, 1, -1, -1, 1, 1, -1, 1, -1, 1, 1, -1, -1, -1, 1, 1, -1, 1, -1, -1, -1, 1, -1, 1, 1, -1, -1, -1, -1, -1 )
-
-[sub_resource type="CubeMesh" id=8]
-
-[sub_resource type="BoxShape" id=9]
-
-[sub_resource type="SphereShape" id=4]
-
-[sub_resource type="SphereMesh" id=5]
-
-[sub_resource type="SpatialMaterial" id=6]
-albedo_color = Color( 1, 0, 1, 1 )
-metallic = 1.0
-roughness = 0.0
-
-[sub_resource type="QuadMesh" id=10]
+[sub_resource type="Environment" id=14]
+background_mode = 2
+background_sky = SubResource( 13 )
+fog_enabled = true
+fog_depth_end = 2015.5
+fog_height_min = 40.0
+fog_height_max = -20.0
 
 [node name="root" type="Spatial"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.000172377, -0.000340819, 0.000481606 )
 
-[node name="floor" type="MeshInstance" parent="."]
-transform = Transform( 100, 0, 0, 0, 0.001, 0, 0, 0, 100, 0.456421, -0.784293, 0.0242958 )
-mesh = SubResource( 1 )
-material/0 = SubResource( 7 )
+[node name="HTerrain" type="Spatial" parent="."]
+script = ExtResource( 3 )
+ambient_wind = 0.321
+_terrain_data = ExtResource( 2 )
+chunk_size = 32
+collision_enabled = true
+collision_layer = 1
+collision_mask = 1
+shader_type = "Classic4"
+custom_shader = null
+custom_globalmap_shader = null
+texture_set = SubResource( 12 )
+shader_params/u_ground_uv_scale_per_texture = Plane( 20, 20, 20, 20 )
+shader_params/u_depth_blending = true
+shader_params/u_triplanar = false
+shader_params/u_tile_reduction = Plane( 1, 1, 1, 1 )
+shader_params/u_globalmap_blend_start = null
+shader_params/u_globalmap_blend_distance = null
+shader_params/u_colormap_opacity_per_texture = Plane( 1, 1, 1, 1 )
 
-[node name="StaticBody" type="StaticBody" parent="floor"]
+[node name="HTerrainDetailLayer" type="Spatial" parent="HTerrain"]
+script = ExtResource( 5 )
+__meta__ = {
+"_editor_icon": ExtResource( 13 )
+}
+texture = ExtResource( 11 )
+view_distance = 500.0
+shader_params/u_globalmap_tint_bottom = 0.55
+shader_params/u_globalmap_tint_top = 0.55
+shader_params/u_bottom_ao = 0.213
+shader_params/u_instance_scale = Vector3( 1, 1, 1 )
 
-[node name="CollisionShape" type="CollisionShape" parent="floor/StaticBody"]
-shape = SubResource( 2 )
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource( 14 )
 
-[node name="static box" type="MeshInstance" parent="."]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -5.84982, 2.27598, -6.19085 )
-mesh = SubResource( 8 )
-material/0 = null
+[node name="DirectionalLight" type="DirectionalLight" parent="."]
+transform = Transform( 1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0.116643, 100, 0 )
+light_color = Color( 1, 0.607843, 0, 1 )
+shadow_enabled = true
+__meta__ = {
+"_edit_group_": true
+}
 
-[node name="StaticBody" type="StaticBody" parent="static box"]
+[node name="character_spawn" type="Spatial" parent="."]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 8.96636, 27.3281, 6.62058 )
 
-[node name="CollisionShape" type="CollisionShape" parent="static box/StaticBody"]
-shape = SubResource( 9 )
-
-[node name="Crate" parent="." instance=ExtResource( 2 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.42851, 3.71757, 0.159622 )
-mass = 10.0
-
-[node name="Crate2" parent="." instance=ExtResource( 2 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 1.14026, 6.14392, 0.159622 )
-
-[node name="Crate3" parent="." instance=ExtResource( 2 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -2.85295, 3.71757, 0.159622 )
-
-[node name="Ball" type="RigidBody" parent="."]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 1, 3 )
-mode = 1
-
-[node name="CollisionShape" type="CollisionShape" parent="Ball"]
-shape = SubResource( 4 )
-
-[node name="MeshInstance" type="MeshInstance" parent="Ball"]
-mesh = SubResource( 5 )
-material/0 = SubResource( 6 )
-
-[node name="Max" parent="." instance=ExtResource( 1 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 23.1453, 3.87665, 0.172377 )
-
-[node name="Spatial" type="Spatial" parent="."]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -16.3151, 0.573671, -0.198788 )
-
-[node name="MeshInstance" type="MeshInstance" parent="Spatial"]
-mesh = SubResource( 10 )
-material/0 = null
-
-[node name="RigidBody" type="RigidBody" parent="Spatial/MeshInstance"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.557421, -0.108973, -0.954862 )
-
-[node name="CollisionShape" type="CollisionShape" parent="Spatial/MeshInstance/RigidBody"]
+[node name="FPS_Controller" parent="character_spawn" instance=ExtResource( 1 )]
